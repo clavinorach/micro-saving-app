@@ -1,10 +1,12 @@
 package com.example.microsaving.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.microsaving.state.SavingViewModel
 import com.example.microsaving.ui.screens.BerandaScreen
@@ -21,6 +23,9 @@ fun NavGraph(
     isDarkMode: Boolean,
     onToggleDarkMode: () -> Unit
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     NavHost(
         navController = navController,
         startDestination = Destinations.Beranda.route
@@ -31,16 +36,24 @@ fun NavGraph(
                 activeGoalsCount = viewModel.activeGoalsCount,
                 topGoals = viewModel.topGoals,
                 onViewAllGoals = {
-                    navController.navigate(Destinations.DaftarTujuan.route)
+                    navController.navigate(Destinations.DaftarTujuan.route) {
+                        launchSingleTop = true
+                    }
                 },
                 onGoalClick = { goalId ->
-                    navController.navigate(Destinations.DetailTujuan.createRoute(goalId))
+                    navController.navigate(Destinations.DetailTujuan.createRoute(goalId)) {
+                        launchSingleTop = true
+                    }
                 },
                 onHistoryClick = {
-                    navController.navigate(Destinations.RiwayatTabungan.route)
+                    navController.navigate(Destinations.RiwayatTabungan.route) {
+                        launchSingleTop = true
+                    }
                 },
                 onSettingsClick = {
-                    navController.navigate(Destinations.Pengaturan.route)
+                    navController.navigate(Destinations.Pengaturan.route) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -49,13 +62,17 @@ fun NavGraph(
             DaftarTujuanScreen(
                 goals = viewModel.goals,
                 onGoalClick = { goalId ->
-                    navController.navigate(Destinations.DetailTujuan.createRoute(goalId))
+                    navController.navigate(Destinations.DetailTujuan.createRoute(goalId)) {
+                        launchSingleTop = true
+                    }
                 },
                 onAddGoalClick = {
-                    navController.navigate(Destinations.ManajemenTujuan.route)
+                    navController.navigate(Destinations.ManajemenTujuan.route) {
+                        launchSingleTop = true
+                    }
                 },
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.popBackStack(Destinations.Beranda.route, inclusive = false)
                 }
             )
         }
@@ -67,26 +84,31 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val goalId = backStackEntry.arguments?.getString("goalId") ?: return@composable
-            val goal = viewModel.getGoalById(goalId) ?: return@composable
-            val contributions = viewModel.getContributionsFor(goalId)
-
-            DetailTujuanScreen(
-                goal = goal,
-                contributions = contributions,
-                onAddContribution = { amount, note ->
-                    viewModel.addContribution(goalId, amount, note)
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
+            val goal = viewModel.getGoalById(goalId)
+            
+            if (goal != null) {
+                val contributions = viewModel.getContributionsFor(goalId)
+                DetailTujuanScreen(
+                    goal = goal,
+                    contributions = contributions,
+                    onAddContribution = { amount, note ->
+                        viewModel.addContribution(goalId, amount, note)
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            } else {
+                // Goal not found, navigate back
+                navController.popBackStack(Destinations.Beranda.route, inclusive = false)
+            }
         }
 
         composable(Destinations.RiwayatTabungan.route) {
             RiwayatTabunganScreen(
                 allContributions = viewModel.allContributions,
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.popBackStack(Destinations.Beranda.route, inclusive = false)
                 }
             )
         }
@@ -110,7 +132,7 @@ fun NavGraph(
                     viewModel.resetAllData()
                 },
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.popBackStack(Destinations.Beranda.route, inclusive = false)
                 }
             )
         }

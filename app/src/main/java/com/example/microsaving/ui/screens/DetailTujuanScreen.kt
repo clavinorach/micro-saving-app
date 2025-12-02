@@ -75,18 +75,24 @@ fun DetailTujuanScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { showBottomSheet = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Tambah Tabungan"
-                        )
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
+        },
+        floatingActionButton = {
+            androidx.compose.material3.ExtendedFloatingActionButton(
+                onClick = { showBottomSheet = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                Text("Tambah Setoran")
+            }
         }
     ) { padding ->
         LazyColumn(
