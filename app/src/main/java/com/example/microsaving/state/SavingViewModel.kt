@@ -42,7 +42,7 @@ class SavingViewModel : ViewModel() {
                     result.add(Pair(contribution, goal.name))
                 }
             }
-            return result.sortedByDescending { it.first.date }
+            return result.sortedByDescending { it.first.timestamp }
         }
 
     fun getGoalById(id: String): SavingGoal? {
@@ -63,12 +63,14 @@ class SavingViewModel : ViewModel() {
         )
         _goals[goalIndex] = updatedGoal
 
-        val dateFormat = SimpleDateFormat("d MMM yyyy", Locale("id", "ID"))
+        val now = Date()
+        val dateFormat = SimpleDateFormat("d MMM yyyy, HH:mm", Locale("id", "ID"))
         val contribution = SavingContribution(
             id = UUID.randomUUID().toString(),
             goalId = goalId,
             amount = amount,
-            date = dateFormat.format(Date()),
+            date = dateFormat.format(now),
+            timestamp = now.time,
             note = note?.takeIf { it.isNotBlank() }
         )
 

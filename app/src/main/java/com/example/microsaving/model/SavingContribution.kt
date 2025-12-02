@@ -5,5 +5,6 @@ data class SavingContribution(
     val goalId: String,
     val amount: Long,
     val date: String,
+    val timestamp: Long = System.currentTimeMillis(),
     val note: String? = null
 )
